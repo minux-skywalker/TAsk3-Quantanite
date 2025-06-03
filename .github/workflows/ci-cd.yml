@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1  # shallow clone for speed
-      - name: Set up Python
+      
+            - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -24,14 +25,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Linting Tools
-        run: |
-          pip install flake8
-          cd frontend && npm install && npx install-peerdeps eslint-config-airbnb --dev
+      - name: Install flake8 for Backend
+        run: pip install flake8
 
-      - name: Lint Backend with flake8
+      - name: Lint Backend (flake8)
+        if: ${{ exists('backend/') }}
         run: flake8 backend/
 
-      - name: Lint Frontend with eslint
-        run: cd frontend && npx eslint src/
+      - name: Install Node Modules and ESLint
+        if: ${{ exists('frontend/package.json') }}
+        run: |
+          cd frontend
+          npm install
+          npx install-peerdeps eslint-config-airbnb --dev
 
+      - name: Lint Frontend (eslint)
+        if: ${{ exists('frontend/src') }}
+        run: cd frontend && npx eslint src/
